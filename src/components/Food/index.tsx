@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { FiEdit3, FiTrash } from 'react-icons/fi';
+import api from '../../services/api';
 
 import { Container } from './styles';
 
@@ -27,17 +28,32 @@ const Food: React.FC<IProps> = ({
   const [isAvailable, setIsAvailable] = useState(food.available);
 
   async function toggleAvailable(): Promise<void> {
-    // TODO UPDATE STATUS (available)
+    try {
+      await api.put<IFoodPlate>(`/foods/${food.id}`, {
+        ...food,
+        available: !isAvailable,
+      });
+      setIsAvailable(!isAvailable);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   function setEditingFood(): void {
-    // TODO - SET THE ID OF THE CURRENT ITEM TO THE EDITING FOOD AND OPEN MODAL
+    handleEditFood(food);
   }
 
   return (
     <Container available={isAvailable}>
       <header>
-        <img src={food.image} alt={food.name} />
+        <img
+          src={
+            food.image
+              ? food.image
+              : 'https://thumbs.dreamstime.com/z/plate-food-icon-outline-plate-food-vector-icon-web-design-isolated-white-background-plate-food-icon-outline-style-199561507.jpg'
+          }
+          alt={food.name}
+        />
       </header>
       <section className="body">
         <h2>{food.name}</h2>
@@ -73,6 +89,7 @@ const Food: React.FC<IProps> = ({
           <label htmlFor={`available-switch-${food.id}`} className="switch">
             <input
               id={`available-switch-${food.id}`}
+              value={isAvailable ? 1 : 0}
               type="checkbox"
               checked={isAvailable}
               onChange={toggleAvailable}
